@@ -1,11 +1,17 @@
 <template>
-  <main class="wrapper">
-    <ItemTable
-      :rows="books"
-      :tabledata="`Liste aller Bücher`"
-      @bookmark-changed="handleBookmarkedChange"
-    />
-  </main>
+  <ItemTable
+    :tableBody="books"
+    :tableHead="tableHead"
+    :tabledata="`Liste aller Bücher`"
+    @bookmark-changed="handleBookmarkedChange"
+  >
+    <template v-slot:default="{ row }">
+      <td>{{ row.title }}</td>
+      <td>{{ row.author }}</td>
+      <td>{{ row.isbn }}</td>
+      <td>{{ row.numPages }}</td>
+    </template>
+  </ItemTable>
 </template>
 
 <script>
@@ -17,6 +23,7 @@ export default {
   },
   data() {
     return {
+      tableHead: ["Name", "Author", "ISBN", "Number of Pages"],
       books: [],
     };
   },
@@ -51,9 +58,6 @@ export default {
     const data = await response.json();
 
     this.books = data;
-    // data.forEach((e) => {
-    //   this.books.push(e);
-    // });
   },
 };
 </script>

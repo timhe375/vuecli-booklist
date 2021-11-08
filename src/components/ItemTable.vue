@@ -4,20 +4,31 @@
     <table class="table-item__table">
       <thead>
         <tr>
-          <th class="table-item__table-head-name">Name</th>
-          <th class="table-item__table-head--isbn">ISBN</th>
-          <th class="table-item__table-head--author">Autor</th>
-          <th class="table-item__table-head--pages">Pages</th>
-          <th class="table-item__table-head--actions"></th>
+          <th
+            v-for="(name, index) in tableHead"
+            :key="index"
+            :class="`table-item__table-head-${name.toLowerCase()}`"
+          >
+            {{ name }}
+          </th>
+          <th>&nbsp;</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.id" class="table-item__table-row">
-          <td>{{ row.title }}</td>
-          <td>{{ row.isbn }}</td>
-          <td>{{ row.author }}</td>
-          <td>{{ row.numPages }}</td>
+        <tr
+          v-for="row in tableBody"
+          :key="row.id"
+          class="table-item__table-row"
+        >
+          <slot :row="row" />
           <td>
+            <router-link
+              class="header__link-item"
+              costum
+              v-slot="{ navigate }"
+              :to="`/books/${row.id}`"
+              ><button @click="navigate">Detail</button></router-link
+            >
             <button
               :class="{
                 'table-item__table-btn-remove': row.isBookmarked,
@@ -39,7 +50,11 @@
 export default {
   emits: ["bookmark-changed"],
   props: {
-    rows: {
+    tableHead: {
+      type: Array,
+      default: () => [],
+    },
+    tableBody: {
       type: Array,
       default: () => [],
     },
