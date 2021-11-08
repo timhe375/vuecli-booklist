@@ -6,16 +6,27 @@
         <tr>
           <th class="table-item__table-head-name">Name</th>
           <th class="table-item__table-head--isbn">ISBN</th>
+          <th class="table-item__table-head--author">Autor</th>
+          <th class="table-item__table-head--pages">Pages</th>
           <th class="table-item__table-head--actions"></th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.isbn" class="table-item__table-row">
+        <tr v-for="row in rows" :key="row.id" class="table-item__table-row">
           <td>{{ row.title }}</td>
           <td>{{ row.isbn }}</td>
+          <td>{{ row.author }}</td>
+          <td>{{ row.numPages }}</td>
           <td>
-            <button :class="variantClass" @click="handleButtonClick">
-              {{ buttondata }}
+            <button
+              :class="{
+                'table-item__table-btn-remove': row.isBookmarked,
+                'table-item__table-btn-add': !row.isBookmarked,
+              }"
+              @click="bookmarkChanged(row)"
+            >
+              <span v-if="row.isBookmarked"> - entfernen </span>
+              <span v-else>+ hinzufügen</span>
             </button>
           </td>
         </tr>
@@ -26,7 +37,7 @@
 
 <script>
 export default {
-  emits: ["buttonClicked"],
+  emits: ["bookmark-changed"],
   props: {
     rows: {
       type: Array,
@@ -36,28 +47,11 @@ export default {
       type: String,
       default: "",
     },
-    buttondata: {
-      type: String,
-      default: "",
-    },
-    variant: {
-      type: String,
-      default: "",
-    },
-  },
-  computed: {
-    variantClass() {
-      return this.variant
-        ? `table-item__table-btn${this.variant}`
-        : `table-item__table-btn${this.variant}`;
-    },
   },
 
   methods: {
-    handleButtonClick(bookId) {
-      const index = this.rows.findIndex((row) => row.id === bookId);
-      this.books[index].isBookmarked = !this.books[index].isBookmarked;
-      this.$emit("buttonClicked", bookId);
+    bookmarkChanged(row) {
+      this.$emit("bookmark-changed", row.id);
     },
   },
 };

@@ -1,26 +1,17 @@
 <template>
   <main class="wrapper">
     <ItemTable
-      :rows="bookMarkedFilter"
-      buttondata="- entfernen"
-      :tabledata="`Merkliste`"
-      variant="-remove"
-      @buttonClicked="handleDelete"
-    />
-    <ItemTable
       :rows="books"
-      buttondata="+ hinzufügen"
       :tabledata="`Liste aller Bücher`"
-      variant="-add"
-      @buttonClicked="handleAdd"
+      @bookmark-changed="handleBookmarkedChange"
     />
   </main>
 </template>
 
 <script>
-import ItemTable from "./components/ItemTable.vue";
+import ItemTable from "@/components/ItemTable.vue";
 export default {
-  name: "App",
+  name: "AllBooksPage",
   components: {
     ItemTable,
   },
@@ -29,20 +20,40 @@ export default {
       books: [],
     };
   },
-  computed: {
-    bookMarkedFilter() {
-      return this.books.filter((book) => book.isBookmarked);
+
+  methods: {
+    async handleBookmarkedChange(id) {
+      const index = this.books.findIndex((book) => book.id === id);
+      try {
+        const newBookmarkedValue = !this.books[index].isBookmarked;
+
+        const data = {
+          ...this.books[index],
+          isBookmarked: newBookmarkedValue,
+        };
+
+        await fetch(`http://localhost:3000/books/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        this.books[index].isBookmarked = newBookmarkedValue;
+      } catch {
+        alert("Fehler");
+      }
     },
   },
-  methods: {},
   async created() {
     const url = "http://localhost:3000/books";
     const response = await fetch(url);
     const data = await response.json();
 
-    data.forEach((e) => {
-      this.books.push(e);
-    });
+    this.books = data;
+    // data.forEach((e) => {
+    //   this.books.push(e);
+    // });
   },
 };
 </script>
